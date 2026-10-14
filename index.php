@@ -1,65 +1,50 @@
 <?php
+// Startseite: neueste Posts aus den Foren, denen der User beigetreten ist
+// Nicht eingeloggt: neueste Posts aus allen Foren
+require __DIR__ . '/includes/init.php';
 
+if ($user) {
+    $feed = getPosts($pdo, 'p.forum_id IN (SELECT forum_id FROM forum_members WHERE user_id = ?)', [$user['id']]);
+} else {
+    $feed = getPosts($pdo, '1 = 1', []);
+}
 
-
-$user = [
-    'name'   => 'max',
-    'avatar' => null,   
-    'forums' => ['Programmieren', 'Gaming'],   
-];
-
-$posts = [
-    
-];
-
-
-$feed = array_filter($posts, fn($post) => in_array($post['forum'], $user['forums']));
-usort($feed, fn($a, $b) => strcmp($b['created'], $a['created']));
+require __DIR__ . '/includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forensite</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <a href="index.php" class="logo">Forensite</a>
-        <a href="profile.php" class="avatar" title="Mein Profil">
-            <?php if ($user['avatar']): ?>
-                <img src="<?= htmlspecialchars($user['avatar']) ?>" alt="Profilbild">
-            <?php else: ?>
-                <?= htmlspecialchars(strtoupper($user['name'][0])) ?>
-            <?php endif; ?>
-        </a>
-    </header>
+    <div class="layout">
+        <?php require __DIR__ . '/includes/sidebar.php'; ?>
 
-    <main class="container">
-        <?php if (empty($user['forums'])): ?>
-            <div class="empty">
-                <h2>Du bist noch keinem Forum beigetreten</h2>
-                <p>Tritt Foren bei, um hier ihre neuesten Posts zu sehen.</p>
-                <a href="forums.php" class="button">Durchsuche Foren</a>
-            </div>
-        <?php elseif (empty($feed)): ?>
-            <div class="empty">
-                <h2>Noch keine Posts</h2>
-                <p>In deinen Foren wurde noch nichts gepostet.</p>
-            </div>
-        <?php else: ?>
-            <?php foreach ($feed as $post): ?>
-                <article class="post">
-                    <div class="score"><?= $post['score'] ?></div>
-                    <div>
-                        <p class="meta">f/<?= htmlspecialchars($post['forum']) ?> · von <?= htmlspecialchars($post['author']) ?></p>
-                        <h2><?= htmlspecialchars($post['title']) ?></h2>
-                        <p class="meta"><?= $post['comments'] ?> Kommentare</p>
-                    </div>
-                </article>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </main>
+        <main class="feed">
+            <?php if (!$user): ?>
+                <div class="card welcome">
+                    <h2>Willkommen bei Forensite</h2>
+                    <p class="meta">Melde dich an, um Foren beizutreten und hier nur deren Posts zu sehen.</p>
+                    <a href="register.php" class="button">Registrieren</a>
+                    <a href="login.php" class="button button-outline">Anmelden</a>
+                </div>
+                <?php foreach ($feed as $post): ?>
+                    <?php require __DIR__ . '/includes/post_card.php'; ?>
+                <?php endforeach; ?>
+            <?php elseif (empty($user['forums'])): ?>
+                <div class="empty">
+                    <h2>Du bist noch keinem Forum beigetreten</h2>
+                    <p>Tritt Foren bei, um hier ihre neuesten Posts zu sehen.</p>
+                    <a href="forums.php" class="button">Durchsuche Foren</a>
+                    <a href="create_forum.php" class="button button-outline">Forum erstellen</a>
+                </div>
+            <?php elseif (empty($feed)): ?>
+                <div class="empty">
+                    <h2>Noch keine Posts</h2>
+                    <p>In deinen Foren wurde noch nichts gepostet.</p>
+                    <a href="forums.php" class="button">Weitere Foren finden</a>
+                    <a href="create_forum.php" class="button button-outline">Forum erstellen</a>
+                </div>
+            <?php else: ?>
+                <?php foreach ($feed as $post): ?>
+                    <?php require __DIR__ . '/includes/post_card.php'; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </main>
+    </div>
 </body>
 </html>
