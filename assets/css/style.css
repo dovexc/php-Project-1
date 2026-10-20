@@ -79,7 +79,7 @@ a {
 }
 
 .score {
-    min-width: 40px;
+    min-width: 28px;
     font-weight: bold;
     text-align: center;
 }
@@ -578,4 +578,140 @@ a {
 .button-joined:hover {
     background: #fde8e8;
     color: #b00020;
+}
+
+/* Up-/Downvote */
+.vote-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+}
+
+.vote-form button {
+    width: 28px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    color: #999;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.vote-form .vote-up:hover {
+    background: #fff0eb;
+    color: #ff4500;
+}
+
+.vote-form .vote-down:hover {
+    background: #eef0ff;
+    color: #5468ff;
+}
+
+.vote-form .score {
+    padding: 2px 0;
+    border-radius: 10px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.vote-form button {
+    transition: color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.vote-form button:active {
+    transform: scale(0.85);
+}
+
+/* Abgestimmt: Pfeil gefüllt, Score farbig hinterlegt, anderer Pfeil blass */
+.vote-form.voted-up .vote-up,
+.vote-form.voted-up .vote-up:hover {
+    background: #ff4500;
+    color: #fff;
+}
+
+.vote-form.voted-up .score {
+    background: #fff0eb;
+    color: #ff4500;
+}
+
+.vote-form.voted-down .vote-down,
+.vote-form.voted-down .vote-down:hover {
+    background: #5468ff;
+    color: #fff;
+}
+
+.vote-form.voted-down .score {
+    background: #eef0ff;
+    color: #5468ff;
+}
+
+.vote-form.voted-up .vote-down,
+.vote-form.voted-down .vote-up {
+    opacity: 0.4;
+}
+
+.vote-form.voted-up .vote-down:hover,
+.vote-form.voted-down .vote-up:hover {
+    opacity: 1;
+}
+
+/* Farbiger Streifen links am Post */
+.post:has(.voted-up) {
+    box-shadow: inset 3px 0 0 #ff4500;
+}
+
+.post:has(.voted-down) {
+    box-shadow: inset 3px 0 0 #5468ff;
+}
+
+/* Bilder in Posts */
+.post-thumb {
+    flex-shrink: 0;
+    align-self: center;
+    width: 96px;
+    height: 72px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #f2f3f5;
+}
+
+.post-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-image {
+    display: block;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background: #f2f3f5;
+    overflow: hidden;
+}
+
+.post-image img {
+    display: block;
+    width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+}
+
+.post-form input[type="file"] {
+    padding: 8px;
+    background: #f9f9fa;
+}
+
+.image-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 240px;
+    margin-top: 8px;
+    border-radius: 6px;
+}
+
+.image-preview[hidden] {
+    display: none;
 }

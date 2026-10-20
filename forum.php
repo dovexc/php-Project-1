@@ -30,7 +30,7 @@ if (!$forumData) {
 }
 
 $currentForum = $forumData['name'];   // Schreibweise aus der DB übernehmen
-$forumPosts  = getPosts($pdo, 'p.forum_id = ?', [$forumData['id']]);
+$forumPosts  = getPosts($pdo, 'p.forum_id = ?', [$forumData['id']], $user['id'] ?? null);
 $isMember    = $user && in_array($currentForum, $user['forums']);
 $createLink  = 'create_post.php?forum=' . urlencode($currentForum);
 

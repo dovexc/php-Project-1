@@ -4,9 +4,9 @@
 require __DIR__ . '/includes/init.php';
 
 if ($user) {
-    $feed = getPosts($pdo, 'p.forum_id IN (SELECT forum_id FROM forum_members WHERE user_id = ?)', [$user['id']]);
+    $feed = getPosts($pdo, 'p.forum_id IN (SELECT forum_id FROM forum_members WHERE user_id = ?)', [$user['id']], $user['id']);
 } else {
-    $feed = getPosts($pdo, '1 = 1', []);
+    $feed = getPosts($pdo, '1 = 1', [], null);
 }
 
 require __DIR__ . '/includes/header.php';

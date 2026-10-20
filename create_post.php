@@ -1,6 +1,7 @@
 <?php
 // Neuen Post erstellen, z. B. create_post.php?forum=Gaming (Forum ist dann vorausgewählt)
 require __DIR__ . '/includes/init.php';
+require __DIR__ . '/includes/image_upload.php';
 
 requireLogin($user);
 
@@ -19,7 +20,12 @@ foreach ($allForums as $forum) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Upload größer als post_max_size: PHP verwirft dann das komplette Formular
+$tooLarge = $_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0;
+
+if ($tooLarge) {
+    $errors[] = 'Das Bild ist zu groß (maximal 5 MB).';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $forumId = (int) ($_POST['forum_id'] ?? 0);
     $title   = trim($_POST['title'] ?? '');
     $body    = trim($_POST['body'] ?? '');
@@ -39,9 +45,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Der Text ist zu lang (maximal 40.000 Zeichen).';
     }
 
+    // Bild erst speichern, wenn der Rest stimmt – sonst bleiben verwaiste Dateien liegen
+    $imagePath = null;
     if (empty($errors)) {
-        $stmt = $pdo->prepare('INSERT INTO posts (forum_id, user_id, title, body) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$forumId, $user['id'], $title, $body]);
+        [$imagePath, $imageError] = saveUploadedImage($_FILES['image'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
+        if ($imageError) {
+            $errors[] = $imageError;
+        }
+    }
+
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare('INSERT INTO posts (forum_id, user_id, title, body, image_path) VALUES (?, ?, ?, ?, ?)');
+            $stmt->execute([$forumId, $user['id'], $title, $body, $imagePath]);
+        } catch (PDOException $e) {
+            if ($imagePath) {
+                unlink(__DIR__ . '/' . $imagePath);   // Speichern fehlgeschlagen: Bild wieder löschen
+            }
+            throw $e;
+        }
 
         // Direkt zum neuen Post weiterleiten
         header('Location: post.php?id=' . $pdo->lastInsertId());
@@ -65,7 +87,7 @@ require __DIR__ . '/includes/header.php';
         <?php require __DIR__ . '/includes/sidebar.php'; ?>
 
         <main class="feed">
-            <form method="post" class="card post-form">
+            <form method="post" enctype="multipart/form-data" class="card post-form">
                 <h1>Post erstellen</h1>
 
                 <?php foreach ($errors as $error): ?>
@@ -90,6 +112,13 @@ require __DIR__ . '/includes/header.php';
                 <label for="body">Text <span class="meta">(optional)</span></label>
                 <textarea name="body" id="body" rows="8"><?= htmlspecialchars($body) ?></textarea>
 
+                <label for="image">Bild <span class="meta">(optional, JPG/PNG/GIF/WebP, max. 5 MB)</span></label>
+                <?php if (!empty($errors) && $_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+                    <p class="meta">Falls du ein Bild ausgewählt hattest: bitte erneut auswählen.</p>
+                <?php endif; ?>
+                <input type="file" name="image" id="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                <img id="image-preview" class="image-preview" alt="Vorschau" hidden>
+
                 <div class="form-actions">
                     <a href="<?= $cancelLink ?>" class="button button-outline">Abbrechen</a>
                     <button type="submit" class="button">Posten</button>
@@ -97,5 +126,6 @@ require __DIR__ . '/includes/header.php';
             </form>
         </main>
     </div>
+    <script src="assets/js/image_preview.js?v=<?= filemtime(__DIR__ . '/assets/js/image_preview.js') ?>" defer></script>
 </body>
 </html>

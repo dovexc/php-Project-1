@@ -1,0 +1,5 @@
+.DS_Store
+
+# Hochgeladene Bilder von Usern nicht ins Repo
+uploads/posts/*
+!uploads/posts/.gitkeep

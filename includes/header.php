@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'Forensite') ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- ?v=… ändert sich bei jeder Dateiänderung, damit der Browser keine alte Version aus dem Cache nimmt -->
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= filemtime(__DIR__ . '/../assets/css/style.css') ?>">
+    <script src="assets/js/vote.js?v=<?= filemtime(__DIR__ . '/../assets/js/vote.js') ?>" defer></script>
 </head>
 <body>
     <header class="site-header">

@@ -1,0 +1,25 @@
+# Upload-Ordner: hier landen Dateien von Usern – nie als Code ausführen
+
+# Kein Ordner-Listing
+Options -Indexes
+
+# PHP in diesem Ordner abschalten
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phar
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .phar
+
+# Nur Bilddateien ausliefern, alles andere sperren
+Require all denied
+<FilesMatch "\.(jpe?g|png|gif|webp)$">
+    Require all granted
+</FilesMatch>
+
+# Browser darf den Dateityp nicht "erraten"
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

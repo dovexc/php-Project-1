@@ -60,12 +60,14 @@ function validCsrf(): bool
 }
 
 // Posts laden, neueste zuerst. $where z. B. 'p.forum_id = ?'
-function getPosts(PDO $pdo, string $where, array $params): array
+// $userId: für wen my_vote geladen wird (1 = Upvote, -1 = Downvote, null = keine Stimme)
+function getPosts(PDO $pdo, string $where, array $params, ?int $userId): array
 {
     $stmt = $pdo->prepare("
-        SELECT p.id, p.title, p.body, p.created_at,
+        SELECT p.id, p.title, p.body, p.image_path, p.created_at,
                f.name AS forum, u.username AS author,
                COALESCE((SELECT SUM(v.value) FROM votes v WHERE v.post_id = p.id), 0) AS score,
+               (SELECT v.value FROM votes v WHERE v.post_id = p.id AND v.user_id = ?) AS my_vote,
                (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comments
         FROM posts p
         JOIN forums f ON f.id = p.forum_id
@@ -73,7 +75,7 @@ function getPosts(PDO $pdo, string $where, array $params): array
         WHERE $where
         ORDER BY p.created_at DESC
     ");
-    $stmt->execute($params);
+    $stmt->execute(array_merge([$userId], $params));
     return $stmt->fetchAll();
 }
 

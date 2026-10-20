@@ -3,7 +3,7 @@
 require __DIR__ . '/includes/init.php';
 
 $postId = (int) ($_GET['id'] ?? 0);
-$posts  = getPosts($pdo, 'p.id = ?', [$postId]);
+$posts  = getPosts($pdo, 'p.id = ?', [$postId], $user['id'] ?? null);
 $post   = $posts[0] ?? null;
 
 if (!$post) {
@@ -132,14 +132,19 @@ require __DIR__ . '/includes/header.php';
         <?php require __DIR__ . '/includes/sidebar.php'; ?>
 
         <main class="feed">
-            <article class="post post-full">
-                <div class="score"><?= $post['score'] ?></div>
+            <article class="post post-full" id="post-<?= $post['id'] ?>">
+                <?php $voteNext = 'post.php?id=' . $post['id']; require __DIR__ . '/includes/vote_box.php'; ?>
                 <div class="post-content">
                     <p class="meta">
                         <a href="forum.php?name=<?= urlencode($post['forum']) ?>" class="forum-link">f/<?= htmlspecialchars($post['forum']) ?></a>
                         · von <?= htmlspecialchars($post['author']) ?> · <?= formatDate($post['created_at']) ?>
                     </p>
                     <h1><?= htmlspecialchars($post['title']) ?></h1>
+                    <?php if ($post['image_path']): ?>
+                        <a href="<?= htmlspecialchars($post['image_path']) ?>" target="_blank" class="post-image">
+                            <img src="<?= htmlspecialchars($post['image_path']) ?>" alt="Bild zu: <?= htmlspecialchars($post['title']) ?>">
+                        </a>
+                    <?php endif; ?>
                     <div class="post-body"><?= nl2br(htmlspecialchars($post['body'])) ?></div>
                 </div>
             </article>
