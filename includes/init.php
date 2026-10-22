@@ -65,7 +65,7 @@ function getPosts(PDO $pdo, string $where, array $params, ?int $userId): array
 {
     $stmt = $pdo->prepare("
         SELECT p.id, p.title, p.body, p.image_path, p.created_at,
-               f.name AS forum, u.username AS author,
+               f.name AS forum, u.username AS author, p.user_id AS author_id,
                COALESCE((SELECT SUM(v.value) FROM votes v WHERE v.post_id = p.id), 0) AS score,
                (SELECT v.value FROM votes v WHERE v.post_id = p.id AND v.user_id = ?) AS my_vote,
                (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comments

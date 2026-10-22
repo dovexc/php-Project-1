@@ -715,3 +715,24 @@ a {
 .image-preview[hidden] {
     display: none;
 }
+
+/* Eigenen Post löschen */
+.post-actions {
+    margin-top: 12px;
+}
+
+.delete-button:hover {
+    color: #b00020;
+}
+
+/* Profilseite */
+.avatar-large {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+}
+
+.user-link:hover {
+    color: #1c1c1c;
+    text-decoration: underline;
+}

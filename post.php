@@ -103,7 +103,7 @@ function renderComments(array $children, string $parentKey, int $postId, string 
         ?>
         <div class="comment" id="comment-<?= $comment['id'] ?>">
             <p class="meta">
-                <strong><?= htmlspecialchars($comment['author']) ?></strong> · <?= formatDate($comment['created_at']) ?>
+                <a href="profile.php?name=<?= urlencode($comment['author']) ?>" class="user-link"><strong><?= htmlspecialchars($comment['author']) ?></strong></a> · <?= formatDate($comment['created_at']) ?>
             </p>
             <p class="comment-body"><?= nl2br(htmlspecialchars($comment['body'])) ?></p>
 
@@ -137,7 +137,7 @@ require __DIR__ . '/includes/header.php';
                 <div class="post-content">
                     <p class="meta">
                         <a href="forum.php?name=<?= urlencode($post['forum']) ?>" class="forum-link">f/<?= htmlspecialchars($post['forum']) ?></a>
-                        · von <?= htmlspecialchars($post['author']) ?> · <?= formatDate($post['created_at']) ?>
+                        · von <a href="profile.php?name=<?= urlencode($post['author']) ?>" class="user-link"><?= htmlspecialchars($post['author']) ?></a> · <?= formatDate($post['created_at']) ?>
                     </p>
                     <h1><?= htmlspecialchars($post['title']) ?></h1>
                     <?php if ($post['image_path']): ?>
@@ -146,6 +146,14 @@ require __DIR__ . '/includes/header.php';
                         </a>
                     <?php endif; ?>
                     <div class="post-body"><?= nl2br(htmlspecialchars($post['body'])) ?></div>
+
+                    <?php if ($user && $user['id'] === $post['author_id']): ?>
+                        <form method="post" action="delete_post.php" class="post-actions" onsubmit="return confirm('Beitrag wirklich löschen? Alle Kommentare werden mitgelöscht.');">
+                            <input type="hidden" name="csrf" value="<?= $_SESSION['csrf'] ?>">
+                            <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                            <button type="submit" class="link-button delete-button">Löschen</button>
+                        </form>
+                    <?php endif; ?>
                 </div>
             </article>
 
