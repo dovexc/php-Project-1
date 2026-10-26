@@ -59,7 +59,7 @@ function validCsrf(): bool
     return hash_equals($_SESSION['csrf'], $_POST['csrf'] ?? '');
 }
 
-// Posts laden, neueste zuerst. $where z. B. 'p.forum_id = ?'
+// Posts laden, meiste Votes zuerst, bei Gleichstand neueste zuerst. $where z. B. 'p.forum_id = ?'
 // $userId: für wen my_vote geladen wird (1 = Upvote, -1 = Downvote, null = keine Stimme)
 function getPosts(PDO $pdo, string $where, array $params, ?int $userId): array
 {
@@ -73,7 +73,7 @@ function getPosts(PDO $pdo, string $where, array $params, ?int $userId): array
         JOIN forums f ON f.id = p.forum_id
         JOIN users u ON u.id = p.user_id
         WHERE $where
-        ORDER BY p.created_at DESC
+        ORDER BY score DESC, p.created_at DESC
     ");
     $stmt->execute(array_merge([$userId], $params));
     return $stmt->fetchAll();

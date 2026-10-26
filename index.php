@@ -1,6 +1,6 @@
 <?php
-// Startseite: neueste Posts aus den Foren, denen der User beigetreten ist
-// Nicht eingeloggt: neueste Posts aus allen Foren
+// Startseite: Posts nach Votes aus den Foren, denen der User beigetreten ist
+// Nicht eingeloggt: Posts nach Votes aus allen Foren
 require __DIR__ . '/includes/init.php';
 
 if ($user) {
